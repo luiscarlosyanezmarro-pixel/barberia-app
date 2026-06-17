@@ -29,6 +29,8 @@ class BarberiaApp:
         page.window.min_width = 1024
         page.window.min_height = 600
         page.scroll = ft.ScrollMode.AUTO
+
+        page.web_manifest = "manifest.json"
         
         login_screen = LoginScreen(page, self.db, self.on_login_success)
         login_screen.build()
