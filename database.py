@@ -130,8 +130,11 @@ class Database:
                 s.get("barber_name", ""), s.get("user_id", "")
             ) for s in sales]
         
-        # COMPRAS
+        # ============================================================
+        # COMPRAS - CORREGIDO
+        # ============================================================
         if "from purchases" in query_lower and "select" in query_lower:
+            # Detectar si es una consulta para una compra específica (fetch_one)
             if "where id =" in query_lower and params:
                 try:
                     purchase_id = int(params[0])
@@ -139,19 +142,26 @@ class Database:
                     print(f"Error: No se pudo convertir {params[0]} a entero")
                     return []
                 
+                print(f"DEBUG DB: Buscando compra por ID: {purchase_id}")
                 purchase = self.api.get_purchase_by_id(purchase_id)
                 if purchase:
+                    print(f"DEBUG DB: Compra encontrada")
+                    # Devolver los datos en el orden CORRECTO para SELECT *
+                    # Estructura de la tabla purchases:
+                    # id, material_id, quantity, total_price, purchase_date, supplier, user_id
                     return [(
-                        purchase.get("id", 0),
-                        purchase.get("material_name", "N/A"),
-                        purchase.get("material_price", 0),
-                        purchase.get("quantity", 0),
-                        purchase.get("total_price", 0),
-                        purchase.get("supplier", ""),
-                        purchase.get("purchase_date", "")
+                        purchase.get("id", 0),          # 0: id
+                        purchase.get("material_id", 0),  # 1: material_id
+                        purchase.get("quantity", 0),     # 2: quantity
+                        purchase.get("total_price", 0),  # 3: total_price
+                        purchase.get("purchase_date", ""), # 4: purchase_date
+                        purchase.get("supplier", ""),    # 5: supplier
+                        purchase.get("user_id", 0)       # 6: user_id
                     )]
+                print(f"DEBUG DB: Compra ID {purchase_id} NO encontrada")
                 return []
             
+            # Consulta para todas las compras (con JOIN para mostrar)
             purchases = self.api.get_purchases()
             result = []
             for p in purchases:
